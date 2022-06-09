@@ -1,0 +1,50 @@
+version: "3"
+
+services:
+  adopet-go:
+    build:
+      context: .
+      dockerfile: ./.docker/go/Dockerfile
+    container_name: adopet-go
+    volumes:
+      - .:/go/src/
+    tty: true
+    ports:
+      - "8080:8080"
+    depends_on:
+      - adopet-db
+    networks:
+      - adopet-network
+
+  adopet-db:
+    build: ./.docker/mysql
+    container_name: adopet-db
+    tty: true
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./.docker/dbdata:/var/lib/mysql
+      - ./.docker/mysql:/docker-entrypoint-initdb.d
+    environment:
+      - MYSQL_DATABASE=adopet
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_PASSWORD=root
+    networks:
+      - adopet-network
+
+  adopet-phpmyadmin:
+    image: phpmyadmin
+    container_name: adopet-phpmyadmin
+    ports:
+      - 8081:80
+    links:
+      - adopet-db
+    networks:
+      - adopet-network
+    depends_on:
+      - adopet-db
+    environment:
+      PMA_HOST: adopet-db
+
+networks:
+  adopet-network:
