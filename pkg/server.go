@@ -1,13 +1,14 @@
 package main
 
 import (
+	"log"
+	"net/http"
+	"os"
+
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/wander4747/adopet-backend/pkg/graph"
 	"github.com/wander4747/adopet-backend/pkg/graph/generated"
-	"log"
-	"net/http"
-	"os"
 )
 
 const defaultPort = "8080"
