@@ -3,8 +3,10 @@ package main
 import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/joho/godotenv"
 	"github.com/wander4747/adopet-backend/pkg/graph/generated"
 	"github.com/wander4747/adopet-backend/pkg/graph/resolver"
+	"github.com/wander4747/adopet-backend/pkg/infrastructure/database"
 	"log"
 	"net/http"
 	"os"
@@ -13,10 +15,21 @@ import (
 const defaultPort = "8080"
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = defaultPort
 	}
+
+	db, err := database.NewMysql()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &resolver.Resolver{}}))
 
