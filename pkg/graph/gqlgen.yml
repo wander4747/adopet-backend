@@ -1,6 +1,7 @@
 # Where are all the schema files located? globs are supported eg  src/**/*.graphqls
 schema:
   - ./*.graphqls
+  - schema/*.graphql
 
 # Where should the generated server code go?
 exec:
@@ -43,6 +44,9 @@ autobind:
 # modelgen, the others will be allowed when binding to fields. Configure them to
 # your liking
 models:
+  Animal:
+    model: "github.com/wander4747/adopet-backend/pkg/graph/model.Animal"
+
   ID:
     model:
       - github.com/99designs/gqlgen/graphql.ID
