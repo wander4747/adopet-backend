@@ -18,4 +18,4 @@ setup: ## Project settings
 
 start-dev: ## Initializes development watches
 start-dev:
-	@wtcvv
+	@wtc
