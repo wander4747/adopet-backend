@@ -3,6 +3,8 @@ package config
 import (
 	"log"
 
+	"github.com/DATA-DOG/go-sqlmock"
+
 	"github.com/jmoiron/sqlx"
 	"github.com/wander4747/adopet-backend/pkg/infrastructure/database"
 )
@@ -26,4 +28,15 @@ func newMysql() *sqlx.DB {
 	}
 
 	return db
+}
+
+func NewMockConfig() (*Config, sqlmock.Sqlmock) {
+	mockDB, mock, _ := sqlmock.New()
+	sqlxDB := sqlx.NewDb(mockDB, "sqlmock")
+
+	c := &Config{
+		DB: sqlxDB,
+	}
+
+	return c, mock
 }
