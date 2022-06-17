@@ -6,7 +6,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/wander4747/adopet-backend/pkg/graph/generated"
 	"github.com/wander4747/adopet-backend/pkg/graph/resolver"
-	"github.com/wander4747/adopet-backend/pkg/infrastructure/database"
+	"github.com/wander4747/adopet-backend/pkg/service"
 	"log"
 	"net/http"
 	"os"
@@ -25,13 +25,11 @@ func main() {
 		port = defaultPort
 	}
 
-	db, err := database.NewMysql()
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
+	services := service.NewService()
 
-	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &resolver.Resolver{}}))
+	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &resolver.Resolver{
+		Services: services,
+	}}))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv)
