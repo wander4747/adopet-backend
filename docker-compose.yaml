@@ -46,5 +46,13 @@ services:
     environment:
       PMA_HOST: adopet-db
 
+  adopet-redis:
+    image: redis:7-alpine3.16
+    container_name: adopet-redis
+    ports:
+      - 6379:6379
+    networks:
+      - adopet-network
+
 networks:
   adopet-network:

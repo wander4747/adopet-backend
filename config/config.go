@@ -3,6 +3,8 @@ package config
 import (
 	"log"
 
+	"github.com/wander4747/adopet-backend/pkg/infrastructure/cache"
+
 	"github.com/DATA-DOG/go-sqlmock"
 
 	"github.com/jmoiron/sqlx"
@@ -10,15 +12,23 @@ import (
 )
 
 type Config struct {
-	DB *sqlx.DB
+	DB    *sqlx.DB
+	Cache cache.CacheInterface
 }
 
 func NewConfig() *Config {
+	redis := newRedis()
+
 	db := newMysql()
 
 	return &Config{
-		DB: db,
+		DB:    db,
+		Cache: redis,
 	}
+}
+
+func newRedis() *cache.Redis {
+	return cache.NewRedis()
 }
 
 func newMysql() *sqlx.DB {

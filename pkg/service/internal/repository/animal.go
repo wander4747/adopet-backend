@@ -5,6 +5,8 @@ package repository
 import (
 	"context"
 
+	"github.com/wander4747/adopet-backend/pkg/infrastructure/cache"
+
 	"github.com/jmoiron/sqlx"
 
 	"github.com/nleof/goyesql"
@@ -25,23 +27,33 @@ type Animal interface {
 
 type animal struct {
 	db      *sqlx.DB
+	cache   cache.CacheInterface
 	queries goyesql.Queries
 }
 
 func NewAnimal(config config.Config) Animal {
 	return &animal{
 		db:      config.DB,
+		cache:   config.Cache,
 		queries: goyesql.MustParseBytes(animalQueries),
 	}
 }
 
-func (a animal) All(_ context.Context) ([]*entity.Animal, error) {
+func (a animal) All(ctx context.Context) ([]*entity.Animal, error) {
 	var animals []*entity.Animal
 
-	err := a.db.Select(&animals, a.queries["all"])
-	if err != nil {
-		return nil, err
-	}
+	err := a.cache.GetSet(ctx, a.AllCacheKey(), &animals, func() (interface{}, error) {
+		err := a.db.Select(&animals, a.queries["all"])
+		if err != nil {
+			return nil, err
+		}
 
-	return animals, nil
+		return &animals, nil
+	}, cache.OneWeek)
+
+	return animals, err
+}
+
+func (a animal) AllCacheKey() string {
+	return "animal-all"
 }

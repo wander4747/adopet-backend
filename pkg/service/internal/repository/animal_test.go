@@ -5,6 +5,8 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/wander4747/adopet-backend/pkg/infrastructure/cache"
+
 	"github.com/wander4747/adopet-backend/pkg/entity"
 
 	"github.com/nleof/goyesql"
@@ -20,9 +22,11 @@ import (
 func NewMockConfig() (*config.Config, sqlmock.Sqlmock) {
 	mockDB, mock, _ := sqlmock.New()
 	sqlxDB := sqlx.NewDb(mockDB, "sqlmock")
+	cache := cache.NewLocal()
 
 	c := config.Config{
-		DB: sqlxDB,
+		DB:    sqlxDB,
+		Cache: cache,
 	}
 
 	return &c, mock
@@ -42,6 +46,7 @@ func Test_animal_All(t *testing.T) {
 	repository := animal{
 		db:      config.DB,
 		queries: queries,
+		cache:   config.Cache,
 	}
 
 	t.Run("Success", func(t *testing.T) {
@@ -58,6 +63,7 @@ func Test_animal_All(t *testing.T) {
 	})
 
 	t.Run("Error", func(t *testing.T) {
+		repository.cache.Flush(ctx)
 		mock.ExpectQuery(queries["all"]).WillReturnError(errors.New("fail"))
 
 		_, err := repository.All(ctx)
