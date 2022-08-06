@@ -5,11 +5,11 @@ package resolver
 
 import (
 	"context"
-
 	"github.com/wander4747/adopet-backend/pkg/graph/generated"
 	"github.com/wander4747/adopet-backend/pkg/graph/model"
 )
 
+// Animals is the resolver for the animals field.
 func (r *queryResolver) Animals(ctx context.Context) ([]*model.Animal, error) {
 	animals, err := r.Services.AnimalService.All(ctx)
 	if err != nil {
@@ -22,6 +22,21 @@ func (r *queryResolver) Animals(ctx context.Context) ([]*model.Animal, error) {
 	}
 
 	return animalCollection, nil
+}
+
+// States is the resolver for the states field.
+func (r *queryResolver) States(ctx context.Context) ([]*model.State, error) {
+	states, err := r.Services.StateService.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var stateCollection []*model.State
+	for _, s := range states {
+		stateCollection = append(stateCollection, model.NewState(*s))
+	}
+
+	return stateCollection, nil
 }
 
 // Query returns generated.QueryResolver implementation.

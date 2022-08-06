@@ -1,6 +1,5 @@
 # Where are all the schema files located? globs are supported eg  src/**/*.graphqls
 schema:
-  - ./*.graphqls
   - schema/*.graphql
 
 # Where should the generated server code go?
@@ -23,6 +22,7 @@ resolver:
   layout: follow-schema
   dir: resolver
   package: resolver
+  filename_template: "{name}.resolvers.go"
 
 # Optional: turn on use ` + "`" + `gqlgen:"fieldName"` + "`" + ` tags in your models
 # struct_tag: json
@@ -46,6 +46,9 @@ autobind:
 models:
   Animal:
     model: "github.com/wander4747/adopet-backend/pkg/graph/model.Animal"
+  State:
+    model: "github.com/wander4747/adopet-backend/pkg/graph/model.State"
+
 
   ID:
     model:
