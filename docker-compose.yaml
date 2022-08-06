@@ -7,7 +7,7 @@ services:
       dockerfile: ./.docker/go/Dockerfile
     container_name: adopet-go
     volumes:
-      - .:/go/src/
+      - .:/app
     tty: true
     ports:
       - "8080:8080"
@@ -15,6 +15,7 @@ services:
       - adopet-db
     networks:
       - adopet-network
+    command: "air"
 
   adopet-db:
     build: ./.docker/mysql
