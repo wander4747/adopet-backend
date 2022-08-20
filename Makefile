@@ -16,6 +16,9 @@ graphql: ## Graphql generator
 setup: ## Project settings
 	go install github.com/rafaelsq/wtc@latest
 
+lint: ## Lint the project
+	golangci-lint run ./...
+
 start-dev: ## Initializes development watches
 start-dev:
 	@wtc
