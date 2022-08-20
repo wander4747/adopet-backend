@@ -48,6 +48,8 @@ models:
     model: "github.com/wander4747/adopet-backend/pkg/graph/model.Animal"
   State:
     model: "github.com/wander4747/adopet-backend/pkg/graph/model.State"
+  City:
+    model: "github.com/wander4747/adopet-backend/pkg/graph/model.City"
 
 
   ID:

@@ -125,3 +125,53 @@ func Test_queryResolver_States(t *testing.T) {
 		require.Equal(t, expected, got)
 	})
 }
+
+func Test_queryResolver_Cities(t *testing.T) {
+	ctx := context.Background()
+	ctrl := gomock.NewController(t)
+
+	serviceMock := serviceMock.NewMockCity(ctrl)
+
+	resolver := &Resolver{
+		Services: service.All{
+			CityService: serviceMock,
+		},
+	}
+
+	t.Run("Success without data", func(t *testing.T) {
+		var expected []*model.City
+		serviceMock.EXPECT().FindByStateID(ctx, 1).
+			Return([]*entity.City{}, nil)
+
+		got, err := resolver.Query().Cities(ctx, "1")
+		require.NoError(t, err)
+		require.Equal(t, expected, got)
+	})
+
+	t.Run("Success with data", func(t *testing.T) {
+		expected := []*model.City{
+			{ID: "1", Name: "Belo Horizonte", StateID: "1"},
+		}
+
+		expectedEntity := []*entity.City{
+			{ID: 1, Name: "Belo Horizonte", StateID: 1},
+		}
+
+		serviceMock.EXPECT().FindByStateID(ctx, 1).
+			Return(expectedEntity, nil)
+
+		got, err := resolver.Query().Cities(ctx, "1")
+		require.NoError(t, err)
+		require.Equal(t, expected, got)
+	})
+
+	t.Run("Error", func(t *testing.T) {
+		var expected []*model.City
+		serviceMock.EXPECT().FindByStateID(ctx, 1).
+			Return(nil, errors.New("fail"))
+
+		got, err := resolver.Query().Cities(ctx, "1")
+		require.Error(t, err)
+		require.Equal(t, expected, got)
+	})
+}
