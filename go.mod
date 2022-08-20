@@ -3,7 +3,7 @@ module github.com/wander4747/adopet-backend
 go 1.19
 
 require (
-	github.com/99designs/gqlgen v0.17.13
+	github.com/99designs/gqlgen v0.17.14
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/go-redis/redis/v9 v9.0.0-beta.1
 	github.com/go-sql-driver/mysql v1.6.0
@@ -13,7 +13,7 @@ require (
 	github.com/nleof/goyesql v1.0.1
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/stretchr/testify v1.7.1
-	github.com/vektah/gqlparser/v2 v2.4.6
+	github.com/vektah/gqlparser/v2 v2.4.8
 )
 
 require (
