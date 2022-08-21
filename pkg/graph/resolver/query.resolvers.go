@@ -5,6 +5,7 @@ package resolver
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/wander4747/adopet-backend/pkg/graph/generated"
 	"github.com/wander4747/adopet-backend/pkg/graph/model"
@@ -38,17 +39,42 @@ func (r *queryResolver) States(ctx context.Context) ([]*model.State, error) {
 	return stateCollection, nil
 }
 
-func (r *queryResolver) Cities(ctx context.Context, stateID string) (citiesCollection []*model.City, err error) {
-	cities, err := r.Services.CityService.FindByStateID(ctx, 1)
+func (r *queryResolver) Cities(ctx context.Context, stateID string) ([]*model.City, error) {
+	ID, err := strconv.Atoi(stateID)
 	if err != nil {
 		return nil, err
 	}
 
+	cities, err := r.Services.CityService.FindByStateID(ctx, ID)
+	if err != nil {
+		return nil, err
+	}
+
+	var citiesCollection []*model.City
 	for _, c := range cities {
 		citiesCollection = append(citiesCollection, model.NewCity(*c))
 	}
 
 	return citiesCollection, nil
+}
+
+func (r *queryResolver) Breeds(ctx context.Context, animalID string) ([]*model.Breed, error) {
+	ID, err := strconv.Atoi(animalID)
+	if err != nil {
+		return nil, err
+	}
+
+	breeds, err := r.Services.BreedService.FindByAnimalID(ctx, ID)
+	if err != nil {
+		return nil, err
+	}
+
+	var breedsCollection []*model.Breed
+	for _, b := range breeds {
+		breedsCollection = append(breedsCollection, model.NewBreed(*b))
+	}
+
+	return breedsCollection, nil
 }
 
 // Query returns generated.QueryResolver implementation.

@@ -1,0 +1,4 @@
+type Breed {
+    id: ID!
+    name: String!
+}

@@ -174,4 +174,70 @@ func Test_queryResolver_Cities(t *testing.T) {
 		require.Error(t, err)
 		require.Equal(t, expected, got)
 	})
+
+	t.Run("Error converter string to int", func(t *testing.T) {
+		var expected []*model.City
+
+		got, err := resolver.Query().Cities(ctx, "asdf")
+		require.Error(t, err)
+		require.Equal(t, expected, got)
+	})
+}
+
+func Test_queryResolver_Breeds(t *testing.T) {
+	ctx := context.Background()
+	ctrl := gomock.NewController(t)
+
+	serviceMock := serviceMock.NewMockBreed(ctrl)
+
+	resolver := &Resolver{
+		Services: service.All{
+			BreedService: serviceMock,
+		},
+	}
+
+	t.Run("Success without data", func(t *testing.T) {
+		var expected []*model.Breed
+		serviceMock.EXPECT().FindByAnimalID(ctx, 1).
+			Return([]*entity.Breed{}, nil)
+
+		got, err := resolver.Query().Breeds(ctx, "1")
+		require.NoError(t, err)
+		require.Equal(t, expected, got)
+	})
+
+	t.Run("Success with data", func(t *testing.T) {
+		expected := []*model.Breed{
+			{ID: "1", Name: "Dalmata"},
+		}
+
+		expectedEntity := []*entity.Breed{
+			{ID: 1, Name: "Dalmata"},
+		}
+
+		serviceMock.EXPECT().FindByAnimalID(ctx, 1).
+			Return(expectedEntity, nil)
+
+		got, err := resolver.Query().Breeds(ctx, "1")
+		require.NoError(t, err)
+		require.Equal(t, expected, got)
+	})
+
+	t.Run("Error", func(t *testing.T) {
+		var expected []*model.Breed
+		serviceMock.EXPECT().FindByAnimalID(ctx, 1).
+			Return(nil, errors.New("fail"))
+
+		got, err := resolver.Query().Breeds(ctx, "1")
+		require.Error(t, err)
+		require.Equal(t, expected, got)
+	})
+
+	t.Run("Error converter string to int", func(t *testing.T) {
+		var expected []*model.Breed
+
+		got, err := resolver.Query().Breeds(ctx, "asdf")
+		require.Error(t, err)
+		require.Equal(t, expected, got)
+	})
 }

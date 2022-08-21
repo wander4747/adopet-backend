@@ -2,4 +2,5 @@ type Query {
     animals: [Animal!]!
     states: [State!]!
     cities(stateId: ID!): [City!]!
+    breeds(animalId: ID!): [Breed!]!
 }

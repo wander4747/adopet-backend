@@ -19,7 +19,7 @@ por estado ou cidade.
 - [X] Listagem de estados
 - [X] Listagem de cidades
 - [X] Listagem de animais
-- [ ] Listagem de raças
+- [X] Listagem de raças
 - [ ] Usuários
     - [ ] Cadastro
     - [ ] Login
