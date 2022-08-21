@@ -48,6 +48,11 @@ type ComplexityRoot struct {
 		Name func(childComplexity int) int
 	}
 
+	Breed struct {
+		ID   func(childComplexity int) int
+		Name func(childComplexity int) int
+	}
+
 	City struct {
 		ID      func(childComplexity int) int
 		Name    func(childComplexity int) int
@@ -56,6 +61,7 @@ type ComplexityRoot struct {
 
 	Query struct {
 		Animals func(childComplexity int) int
+		Breeds  func(childComplexity int, animalID string) int
 		Cities  func(childComplexity int, stateID string) int
 		States  func(childComplexity int) int
 	}
@@ -71,6 +77,7 @@ type QueryResolver interface {
 	Animals(ctx context.Context) ([]*model.Animal, error)
 	States(ctx context.Context) ([]*model.State, error)
 	Cities(ctx context.Context, stateID string) ([]*model.City, error)
+	Breeds(ctx context.Context, animalID string) ([]*model.Breed, error)
 }
 
 type executableSchema struct {
@@ -102,6 +109,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Animal.Name(childComplexity), true
 
+	case "Breed.id":
+		if e.complexity.Breed.ID == nil {
+			break
+		}
+
+		return e.complexity.Breed.ID(childComplexity), true
+
+	case "Breed.name":
+		if e.complexity.Breed.Name == nil {
+			break
+		}
+
+		return e.complexity.Breed.Name(childComplexity), true
+
 	case "City.id":
 		if e.complexity.City.ID == nil {
 			break
@@ -129,6 +150,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Animals(childComplexity), true
+
+	case "Query.breeds":
+		if e.complexity.Query.Breeds == nil {
+			break
+		}
+
+		args, err := ec.field_Query_breeds_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Breeds(childComplexity, args["animalId"].(string)), true
 
 	case "Query.cities":
 		if e.complexity.Query.Cities == nil {
@@ -226,6 +259,10 @@ var sources = []*ast.Source{
     id: ID!
     name: String!
 }`, BuiltIn: false},
+	{Name: "../schema/breed.graphql", Input: `type Breed {
+    id: ID!
+    name: String!
+}`, BuiltIn: false},
 	{Name: "../schema/city.graphql", Input: `type City {
     id: ID!
     name: String!
@@ -235,6 +272,7 @@ var sources = []*ast.Source{
     animals: [Animal!]!
     states: [State!]!
     cities(stateId: ID!): [City!]!
+    breeds(animalId: ID!): [Breed!]!
 }`, BuiltIn: false},
 	{Name: "../schema/state.graphql", Input: `type State {
     id: ID!
@@ -260,6 +298,21 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_breeds_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["animalId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("animalId"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["animalId"] = arg0
 	return args, nil
 }
 
@@ -394,6 +447,94 @@ func (ec *executionContext) _Animal_name(ctx context.Context, field graphql.Coll
 func (ec *executionContext) fieldContext_Animal_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Animal",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Breed_id(ctx context.Context, field graphql.CollectedField, obj *model.Breed) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Breed_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Breed_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Breed",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Breed_name(ctx context.Context, field graphql.CollectedField, obj *model.Breed) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Breed_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Breed_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Breed",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -695,6 +836,67 @@ func (ec *executionContext) fieldContext_Query_cities(ctx context.Context, field
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_cities_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_breeds(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_breeds(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Breeds(rctx, fc.Args["animalId"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Breed)
+	fc.Result = res
+	return ec.marshalNBreed2ᚕᚖgithubᚗcomᚋwander4747ᚋadopetᚑbackendᚋpkgᚋgraphᚋmodelᚐBreedᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_breeds(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Breed_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Breed_name(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Breed", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_breeds_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -2778,6 +2980,41 @@ func (ec *executionContext) _Animal(ctx context.Context, sel ast.SelectionSet, o
 	return out
 }
 
+var breedImplementors = []string{"Breed"}
+
+func (ec *executionContext) _Breed(ctx context.Context, sel ast.SelectionSet, obj *model.Breed) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, breedImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Breed")
+		case "id":
+
+			out.Values[i] = ec._Breed_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "name":
+
+			out.Values[i] = ec._Breed_name(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var cityImplementors = []string{"City"}
 
 func (ec *executionContext) _City(ctx context.Context, sel ast.SelectionSet, obj *model.City) graphql.Marshaler {
@@ -2895,6 +3132,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_cities(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "breeds":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_breeds(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -3358,6 +3618,60 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalNBreed2ᚕᚖgithubᚗcomᚋwander4747ᚋadopetᚑbackendᚋpkgᚋgraphᚋmodelᚐBreedᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Breed) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNBreed2ᚖgithubᚗcomᚋwander4747ᚋadopetᚑbackendᚋpkgᚋgraphᚋmodelᚐBreed(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNBreed2ᚖgithubᚗcomᚋwander4747ᚋadopetᚑbackendᚋpkgᚋgraphᚋmodelᚐBreed(ctx context.Context, sel ast.SelectionSet, v *model.Breed) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Breed(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNCity2ᚕᚖgithubᚗcomᚋwander4747ᚋadopetᚑbackendᚋpkgᚋgraphᚋmodelᚐCityᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.City) graphql.Marshaler {
