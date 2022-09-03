@@ -52,6 +52,8 @@ models:
     model: "github.com/wander4747/adopet-backend/pkg/graph/model.City"
   Breed:
     model: "github.com/wander4747/adopet-backend/pkg/graph/model.Breed"
+  User:
+    model: "github.com/wander4747/adopet-backend/pkg/graph/model.User"
 
 
   ID:

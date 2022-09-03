@@ -7,6 +7,7 @@ type All struct {
 	StateService  State
 	CityService   City
 	BreedService  Breed
+	UserService   User
 }
 
 func NewService() All {
@@ -17,5 +18,6 @@ func NewService() All {
 		StateService:  NewState(*config),
 		CityService:   NewCity(*config),
 		BreedService:  NewBreed(*config),
+		UserService:   NewUser(*config),
 	}
 }
