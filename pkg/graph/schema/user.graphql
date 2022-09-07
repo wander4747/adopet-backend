@@ -1,0 +1,46 @@
+enum TypeUser {
+    NORMAL
+    MODERATOR
+}
+
+type User {
+    id: ID!
+    name: String!
+    email: String!
+    cityID: Int!
+    stateID: Int!
+    phone: String
+    description: String
+    photo: String
+    type: TypeUser!
+    showEmail: Boolean!
+    showPhone: Boolean!
+    showAddress: Boolean!
+    address: String!
+    number: Int
+    zipCode: String!
+    complement: String
+    totalPets: Int
+}
+
+directive @validation(constraint: String!) on INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION
+
+input NewUser {
+    name: String! @validation(constraint: "max=255")
+    email: String! @validation(constraint: "email")
+    cityID: Int!
+    stateID: Int!
+    phone: String
+    description: String @validation(constraint: "max=255")
+    password: String! @validation(constraint: "min=6")
+    photo: String
+    type: TypeUser!
+    showEmail: Boolean!
+    showPhone: Boolean!
+    showAddress: Boolean!
+    address: String!
+    number: Int
+    zipCode: String! @validation(constraint: "zipCode")
+    complement: String
+    totalPets: Int
+}
