@@ -51,14 +51,13 @@ func NewUserModel(user *entity.User) *User {
 }
 
 func NewUserEntity(user NewUser) entity.User {
-	return entity.User{
+	entity := entity.User{
 		Name:        user.Name,
 		Email:       user.Email,
 		CityID:      user.CityID,
 		StateID:     user.StateID,
 		Phone:       user.Phone,
 		Description: user.Description,
-		Password:    user.Password,
 		Photo:       user.Photo,
 		Type:        entity.TypeUser(NewUserType(user.Type)),
 		ShowEmail:   user.ShowEmail,
@@ -70,6 +69,10 @@ func NewUserEntity(user NewUser) entity.User {
 		Complement:  user.Complement,
 		TotalPets:   user.TotalPets,
 	}
+
+	entity.GeneratePassword(user.Password)
+
+	return entity
 }
 
 func NewUserType(kind TypeUser) string {

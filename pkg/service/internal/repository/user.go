@@ -31,16 +31,9 @@ type user struct {
 	queries goyesql.Queries
 }
 
-func (u user) Create(_ context.Context, user entity.User) (us *entity.User, err error) {
+func (u user) Create(ctx context.Context, user entity.User) (us *entity.User, err error) {
 	us = &user
 
-	passwordHash, err := us.GeneratePassword(us.Password)
-	if err != nil {
-		return nil, err
-	}
-
-	us.Password = string(passwordHash)
-	
 	row, err := u.db.NamedExec(u.queries["create"], us)
 	if err != nil {
 		return nil, err

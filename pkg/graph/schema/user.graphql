@@ -11,7 +11,6 @@ type User {
     stateID: Int!
     phone: String
     description: String
-    password: String!
     photo: String
     type: TypeUser!
     showEmail: Boolean!
@@ -32,8 +31,8 @@ input NewUser {
     cityID: Int!
     stateID: Int!
     phone: String
-    description: String
-    password: String!
+    description: String @validation(constraint: "max=255")
+    password: String! @validation(constraint: "min=6")
     photo: String
     type: TypeUser!
     showEmail: Boolean!

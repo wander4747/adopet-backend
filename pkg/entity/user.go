@@ -25,10 +25,14 @@ type User struct {
 	TotalPets   *int     `json:"totalPets" db:"total_pets"`
 }
 
-func (user User) GeneratePassword(password string) ([]byte, error) {
-	return bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+func (user *User) GeneratePassword(password string) {
+	user.Password, _ = user.generatePassword(password)
+}
+func (user *User) generatePassword(password string) (string, error) {
+	pass, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	return string(pass), err
 }
 
-func (user User) CheckPassword(passwordHash, passwordString string) error {
+func (user *User) CheckPassword(passwordHash, passwordString string) error {
 	return bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(passwordString))
 }
